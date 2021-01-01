@@ -1,0 +1,10 @@
+f font
+s bomb
+s guy
+s worm
+s explosion
+s float
+s missile
+s cannon
+l level0.tmx
+l level1.tmx

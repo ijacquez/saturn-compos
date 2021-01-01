@@ -1,0 +1,1 @@
+convert -background #00ff00ff -alpha remove -alpha off -depth 4 -type palette -compress NONE -colors 16 guy/png/aac_tiles_run_00.png guy/png/aac_tiles_run_01.png guy/png/aac_tiles_run_02.png guy/png/aac_tiles_run_03.png guy/aac_tiles_run_%02d.bmp
