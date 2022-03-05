@@ -5,33 +5,34 @@ endif
 include $(YAUL_INSTALL_ROOT)/share/pre.common.mk
 
 SH_PROGRAM:= port
-SH_OBJECTS:= \
-	animation.o \
-	blocks.o \
-	collision.o \
-	enemies.o \
-	level.o \
-	main.o \
-	pcmsys.o \
-	player.o \
-	print.o \
-	scroll.o \
-	sound.o \
-	sprite.o \
-	vdp1_hw.o \
-	spritecode/cannon.o \
-	spritecode/explosion.o \
-	spritecode/float.o \
-	spritecode/missile.o \
-	spritecode/worm.o \
-	graphics/sprs.o
+SH_SRCS:= \
+	animation.c \
+	blocks.c \
+	collision.c \
+	enemies.c \
+	level.c \
+	main.c \
+	pcmsys.c \
+	player.c \
+	print.c \
+	scroll.c \
+	sound.c \
+	sprite.c \
+	vdp1_hw.c \
+	spritecode/cannon.c \
+	spritecode/explosion.c \
+	spritecode/float.c \
+	spritecode/missile.c \
+	spritecode/worm.c \
+	graphics/sprs.c
 
 ifeq ($(strip $(PORT_USE_FILECLIENT)),)
-SH_OBJECTS+= \
-	cd_iso9660.o
+SH_SRCS+= \
+	cd_iso9660.c
 else
-SH_OBJECTS+= \
-	cd_fileclient.o
+$(error No longer supported)
+SH_SRCS+= \
+	cd_fileclient.c
 endif
 
 SH_LIBRARIES:=
@@ -43,10 +44,7 @@ IP_AREAS:= JTUBKAEL
 IP_PERIPHERALS:= JAMKST
 IP_TITLE:= Compo entry 2020
 IP_MASTER_STACK_ADDR:= 0x06004000
-IP_SLAVE_STACK_ADDR:= 0x06001000
+IP_SLAVE_STACK_ADDR:= 0x06001E00
 IP_1ST_READ_ADDR:= 0x06004000
-
-M68K_PROGRAM:=
-M68K_OBJECTS:=
 
 include $(YAUL_INSTALL_ROOT)/share/post.common.mk

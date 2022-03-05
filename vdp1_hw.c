@@ -164,7 +164,7 @@ vdp1_hw_cmdt_list_finish(void)
 
         _cmdt_list.count = VDP1_ENV_CMDT_PREAMBLE_COUNT + _state.index;
 
-        vdp1_sync_cmdt_list_put(&_cmdt_list, 0, NULL, NULL);
+        vdp1_sync_cmdt_list_put(&_cmdt_list, 0);
 }
 
 static void

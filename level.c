@@ -45,7 +45,10 @@ _level_loading_screen_show(void)
         /* XXX: Ugly way of clearing VDP1 screen */
         vdp2_sprite_priority_set(0, 0);
 
-        vdp_sync();
+        vdp1_sync();
+        vdp2_sync();
+        vdp1_sync_wait();
+        vdp2_sync_wait();
 
         vdp2_sprite_priority_set(0, 5);
 
@@ -53,7 +56,10 @@ _level_loading_screen_show(void)
                 print_buffer(1, 1, "NOW LOADING...");
         } vdp1_hw_cmdt_list_finish();
 
-        vdp_sync();
+        vdp1_sync();
+        vdp2_sync();
+        vdp1_sync_wait();
+        vdp2_sync_wait();
 
         vdp2_scrn_display_set(VDP2_SCRN_NBG0, /* transparent = */ true);
         vdp2_scrn_display_set(VDP2_SCRN_NBG1, /* transparent = */ true);
@@ -65,7 +71,7 @@ _level_loading_screen_show(void)
 #define LEVEL_REQUEST_LOAD      (1)
 #define LEVEL_REQUEST_RELOAD    (2)
 
-static uint32_t _loading_request = LEVEL_REQUEST_NONE; 
+static uint32_t _loading_request = LEVEL_REQUEST_NONE;
 
 static void
 _state_level_reload(void)

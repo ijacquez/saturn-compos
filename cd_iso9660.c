@@ -17,12 +17,14 @@ static const iso9660_filelist_entry_t *_file_entry_find(const char *filename);
 void
 cd_init(void)
 {
-        _filelist.entries = _filelist_entries;
-        _filelist.entries_count = 0;
-        _filelist.entries_pooled_count = 0;
+        /* Load the maximum number. We have to free the allocated filelist
+         * entries, but since we never exit, we don't have to */
+        iso9660_filelist_entry_t * const filelist_entries =
+            iso9660_entries_alloc(-1);
+        assert(filelist_entries != NULL);
 
-        /* Load the maximum number */
-        iso9660_filelist_read(&_filelist, -1);
+        iso9660_filelist_default_init(&_filelist, filelist_entries, -1);
+        iso9660_filelist_root_read(&_filelist);
 }
 
 void

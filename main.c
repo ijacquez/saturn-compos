@@ -67,7 +67,10 @@ main(void)
                 } vdp1_hw_cmdt_list_finish();
 
                 /* dbgio_flush(); */
-                vdp_sync();
+                vdp1_sync();
+                vdp2_sync();
+                vdp1_sync_wait();
+                vdp2_sync_wait();
         }
 
         return 0;
@@ -79,8 +82,8 @@ user_init(void)
         vdp2_tvmd_display_res_set(VDP2_TVMD_INTERLACE_NONE, VDP2_TVMD_HORZ_NORMAL_A,
                                   VDP2_TVMD_VERT_224);
 
-        vdp_sync_vblank_in_set(_vblank_in_handler);
-        vdp_sync_vblank_out_set(_vblank_out_handler);
+        vdp_sync_vblank_in_set(_vblank_in_handler, NULL);
+        vdp_sync_vblank_out_set(_vblank_out_handler, NULL);
 
         vdp2_cram_mode_set(1);
         vdp2_vram_control_set(&_vdp2_vram_ctl);
