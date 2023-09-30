@@ -1,8 +1,6 @@
 #include <stdint.h>
-#include <math.h>
 #include <stdio.h>
 
-#include "blocks.h"
 #include "scroll.h"
 
 #define TILE2BLOCK(tile) (((tile) & 0x01FF) >> 1)

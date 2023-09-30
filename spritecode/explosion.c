@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <math.h>
 
 #include "explosion.h"
 

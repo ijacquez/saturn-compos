@@ -2,7 +2,6 @@
 #define LEVEL_H
 
 #include <stdint.h>
-#include <math.h>
 
 typedef struct loaded_level {
         int8_t level;

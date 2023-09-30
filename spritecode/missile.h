@@ -2,7 +2,6 @@
 #define SPRITECODE_MISSILE_H
 
 #include <stdint.h>
-#include <math.h>
 
 #include "../sprite.h"
 

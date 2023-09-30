@@ -1,7 +1,6 @@
 #include <yaul.h>
 
 #include <string.h>
-#include <math.h>
 
 #include "cd.h"
 #include "enemies.h"
@@ -24,8 +23,8 @@ uint32_t frame_count = 0;
 smpc_peripheral_digital_t per_digital;
 
 static const vdp2_vram_ctl_t _vdp2_vram_ctl = {
-        .coefficient_table = VDP2_VRAM_CTL_COEFFICIENT_TABLE_VRAM,
-        .vram_mode =         VDP2_VRAM_CTL_MODE_PART_BANK_BOTH
+        .coeff_table = VDP2_VRAM_CTL_COEFF_TABLE_VRAM,
+        .vram_mode   = VDP2_VRAM_CTL_MODE_PART_BANK_BOTH
 };
 
 static void _vblank_in_handler(void *work);
@@ -66,7 +65,7 @@ main(void)
                         sprite_list_draw_all();
                 } vdp1_hw_cmdt_list_finish();
 
-                /* dbgio_flush(); */
+                dbgio_flush();
                 vdp1_sync();
                 vdp2_sync();
                 vdp1_sync_wait();
@@ -88,20 +87,22 @@ user_init(void)
         vdp2_cram_mode_set(1);
         vdp2_vram_control_set(&_vdp2_vram_ctl);
 
-        /* dbgio_dev_default_init(DBGIO_DEV_VDP2_ASYNC); */
-        /* dbgio_dev_font_load(); */
-        /* dbgio_dev_font_load_wait(); */
+        dbgio_init();
+        dbgio_dev_default_init(DBGIO_DEV_MEDNAFEN_DEBUG);
 
         vdp2_tvmd_display_set();
 
         cpu_cache_purge();
 
         cpu_intc_mask_set(0);
+
+        smpc_peripheral_init();
 }
 
 void
 _vblank_in_handler(void *work __unused)
 {
+        smpc_peripheral_intback_issue();
         /* XXX: Have this be a callback list */
         sound_vblank_in();
 }
@@ -109,5 +110,4 @@ _vblank_in_handler(void *work __unused)
 static void
 _vblank_out_handler(void *work __unused)
 {
-        smpc_peripheral_intback_issue();
 }

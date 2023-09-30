@@ -2,7 +2,6 @@
 #define SPRITECODE_FLOAT_H
 
 #include <stdint.h>
-#include <math.h>
 
 #include "../sprite.h"
 

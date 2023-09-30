@@ -2,7 +2,6 @@
 #define BLOCKS_H
 
 #include <stdint.h>
-#include <math.h>
 
 //get the height to add for a slope.
 //tile- the tile number.

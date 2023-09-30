@@ -1,7 +1,6 @@
 #include <yaul.h>
 
 #include <assert.h>
-#include <math.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -39,8 +38,9 @@ level_init(void)
 static void
 _level_loading_screen_show(void)
 {
-        vdp2_scrn_display_clear();
-        scroll_backcolor_set(COLOR_RGB1555(1, 0, 0, 0));
+        vdp2_scrn_display_set(VDP2_SCRN_DISP_NONE);
+
+        scroll_backcolor_set(RGB1555(1, 0, 0, 0));
 
         /* XXX: Ugly way of clearing VDP1 screen */
         vdp2_sprite_priority_set(0, 0);
@@ -61,10 +61,10 @@ _level_loading_screen_show(void)
         vdp1_sync_wait();
         vdp2_sync_wait();
 
-        vdp2_scrn_display_set(VDP2_SCRN_NBG0, /* transparent = */ true);
-        vdp2_scrn_display_set(VDP2_SCRN_NBG1, /* transparent = */ true);
-        vdp2_scrn_display_set(VDP2_SCRN_NBG2, /* transparent = */ true);
-        vdp2_scrn_display_set(VDP2_SCRN_NBG3, /* transparent = */ true);
+        vdp2_scrn_display_set(VDP2_SCRN_DISPTP_NBG0 |
+                              VDP2_SCRN_DISPTP_NBG1 |
+                              VDP2_SCRN_DISPTP_NBG2 |
+                              VDP2_SCRN_DISPTP_NBG3);
 }
 
 #define LEVEL_REQUEST_NONE      (0)
@@ -85,7 +85,7 @@ _state_level_reload(void)
         scroll_lvl_process(_lvl);
         enemies_lvl_process(_lvl);
 
-        scroll_backcolor_set(COLOR_RGB1888_RGB1555(1, 36, 34, 52));
+        scroll_backcolor_set(RGB888_RGB1555(1, 36, 34, 52));
 
         const int32_t start_row = (fix16_int32_to(loaded_level->player_start.y) / 224) * 14;
 

@@ -2,7 +2,6 @@
 #define SPRITECODE_CANNON_H
 
 #include <stdint.h>
-#include <math.h>
 
 #include "../sprite.h"
 

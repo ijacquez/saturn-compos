@@ -1,7 +1,6 @@
 #include <yaul.h>
 
 #include <stdint.h>
-#include <math.h>
 
 #include "missile.h"
 #include "explosion.h"

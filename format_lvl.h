@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include <fix16.h>
+#include <gamemath/fix16.h>
 
 typedef enum layer_flags {
         LAYER_FLAGS_NONE = 0

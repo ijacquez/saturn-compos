@@ -2,7 +2,7 @@
 #define SCROLL_H
 
 #include <stdint.h>
-#include <math.h>
+#include <gamemath/color.h>
 
 #include "graphics/triggers.h"
 
@@ -48,7 +48,7 @@ void scroll_move(scroll_t scroll, fix16_t x, fix16_t y);
 // Moves scroll absolutely to coordinates.
 void scroll_set(scroll_t scroll, fix16_t x, fix16_t y);
 
-void scroll_backcolor_set(color_rgb1555_t color);
+void scroll_backcolor_set(rgb1555_t color);
 
 // Gets the value at the given coordinates for a square map.
 map_value_flags_t scroll_flags_get(scroll_t scroll, int32_t x, int32_t y);

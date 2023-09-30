@@ -64,45 +64,41 @@ sprite_draw(sprite_t *sprite)
         assert(sprite_cmdt != NULL);
 
         vdp1_cmdt_draw_mode_t draw_mode = {
-                .raw = 0x0000,
-                .bits.trans_pixel_disable = false,
-                .bits.pre_clipping_disable = true,
-                .bits.end_code_disable = true,
-                .bits.color_mode = 1
+                .raw                  = 0x0000,
+                .trans_pixel_disable  = false,
+                .pre_clipping_disable = true,
+                .end_code_disable     = true,
+                .color_mode           = VDP1_CMDT_CM_CLUT_16
         };
 
-        vdp1_cmdt_param_draw_mode_set(sprite_cmdt, draw_mode);
+        vdp1_cmdt_draw_mode_set(sprite_cmdt, draw_mode);
 
         if (sprite->loaded_spr != NULL) {
                 const loaded_spr_sprite_t * const loaded_spr_sprite =
                     &sprite->loaded_spr->sprites[sprite->spr_index];
 
-                vdp1_cmdt_param_char_base_set(sprite_cmdt,
+                vdp1_cmdt_char_base_set(sprite_cmdt,
                     (vdp1_vram_t)loaded_spr_sprite->texture_base);
-                vdp1_cmdt_param_color_mode1_set(sprite_cmdt,
+                vdp1_cmdt_color_mode1_set(sprite_cmdt,
                     (vdp1_vram_t)loaded_spr_sprite->clut_base);
 
-                vdp1_cmdt_param_size_set(sprite_cmdt, fix16_int32_to(sprite->render_width),
+                vdp1_cmdt_char_size_set(sprite_cmdt, fix16_int32_to(sprite->render_width),
                     fix16_int32_to(sprite->render_height));
         } else {
-                vdp1_cmdt_param_color_mode1_set(sprite_cmdt, 0x00000000);
-                vdp1_cmdt_param_char_base_set(sprite_cmdt, 0x00000000);
-                vdp1_cmdt_param_size_set(sprite_cmdt, 0, 0);
+                vdp1_cmdt_color_mode1_set(sprite_cmdt, 0x00000000);
+                vdp1_cmdt_char_base_set(sprite_cmdt, 0x00000000);
+                vdp1_cmdt_char_size_set(sprite_cmdt, 0, 0);
         }
 
-        vdp1_cmdt_param_horizontal_flip_set(sprite_cmdt,
-            (sprite->mirror & SPRITE_MIRROR_HORZ) == SPRITE_MIRROR_HORZ);
-        vdp1_cmdt_param_vertical_flip_set(sprite_cmdt,
-            (sprite->mirror & SPRITE_MIRROR_VERT) == SPRITE_MIRROR_VERT);
+        vdp1_cmdt_char_flip_set(sprite_cmdt, sprite->mirror);
 
-        vdp1_cmdt_param_gouraud_base_set(sprite_cmdt, 0x00000000);
+        vdp1_cmdt_gouraud_base_set(sprite_cmdt, 0x00000000);
 
         if ((sprite->scale == FIX16(1)) && (sprite->angle == FIX16(0))) {
-                xy[0].x = (int16_t)fix16_int32_to(sprite->x_pos);
-                xy[0].y = (int16_t)fix16_int32_to(sprite->y_pos);
+                sprite_cmdt->cmd_vertices[0].x = (int16_t)fix16_int32_to(sprite->x_pos);
+                sprite_cmdt->cmd_vertices[0].y = (int16_t)fix16_int32_to(sprite->y_pos);
 
                 vdp1_cmdt_normal_sprite_set(sprite_cmdt);
-                vdp1_cmdt_param_vertex_set(sprite_cmdt, CMDT_VTX_NORMAL_SPRITE, &xy[0]);
         } else if (sprite->angle == FIX16(0)) {
                 xy[0].x = (int16_t)fix16_int32_to(sprite->x_pos);
                 xy[0].y = (int16_t)fix16_int32_to(sprite->y_pos);
@@ -113,8 +109,7 @@ sprite_draw(sprite_t *sprite)
                 xy[1].y = (int16_t)(fix16_int32_to(fix16_mul(sprite->render_height, sprite->scale) + sprite->y_pos));
 
                 vdp1_cmdt_scaled_sprite_set(sprite_cmdt);
-                vdp1_cmdt_param_vertex_set(sprite_cmdt, CMDT_VTX_SCALE_SPRITE_UL, &xy[0]);
-                vdp1_cmdt_param_vertex_set(sprite_cmdt, CMDT_VTX_SCALE_SPRITE_LR, &xy[1]);
+                vdp1_cmdt_vtx_scale_set(sprite_cmdt, xy[0], xy[1]);
         } else {
                 /* Offset of top left sprite corner from the origin */
                 fix16_t x_offset = -(fix16_mul(sprite->render_width >> 1, sprite->scale));
@@ -146,7 +141,7 @@ sprite_draw(sprite_t *sprite)
                 }
 
                 vdp1_cmdt_distorted_sprite_set(sprite_cmdt);
-                vdp1_cmdt_param_vertices_set(sprite_cmdt, &xy[0]);
+                vdp1_cmdt_vtx_set(sprite_cmdt, xy);
         }
 
         /* Use the reversed half-word for the sorting value */
@@ -274,11 +269,12 @@ sprite_load(object_id_t object_id)
         const vdp1_clut_t * const palette =
             (vdp1_clut_t *)((uintptr_t)cg + spr->sprite_size);
 
-        void * const texture_base = (void *)vdp1_hw_vram_texture_alloc(spr->sprite_size);
+        /* Unclear why GCC complains about casting an uintptr_t to void pointer */
+        void *texture_base = (void *)(uintptr_t)vdp1_hw_vram_texture_alloc(spr->sprite_size);
         vdp1_clut_t * const clut_base = vdp1_hw_vram_clut_alloc();
 
         (void)memcpy(texture_base, cg, spr->sprite_size);
-        (void)memcpy(clut_base, palette, spr->palette_count * sizeof(color_rgb1555_t));
+        (void)memcpy(clut_base, palette, spr->palette_count * sizeof(rgb1555_t));
 
         loaded_spr_t * const loaded_spr =
             &_sprite_loading.loaded_sprs[_sprite_loading.spr_index];

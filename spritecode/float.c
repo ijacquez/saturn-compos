@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <math.h>
 
 #include "float.h"
 

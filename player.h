@@ -2,7 +2,6 @@
 #define PLAYER_H
 
 #include <stdint.h>
-#include <math.h>
 
 #include "graphics/triggers.h"
 #include "sprite.h"

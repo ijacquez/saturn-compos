@@ -28,11 +28,11 @@ void
 print_init(void)
 {
         static const vdp1_cmdt_draw_mode_t draw_mode = {
-                .raw = 0x0000,
-                .bits.trans_pixel_disable = false,
-                .bits.pre_clipping_disable = true,
-                .bits.end_code_disable = true,
-                .bits.color_mode = 1
+                .raw                  = 0x0000,
+                .trans_pixel_disable  = false,
+                .pre_clipping_disable = true,
+                .end_code_disable     = true,
+                .color_mode           = VDP1_CMDT_CM_CLUT_16
         };
 
         font_t *const font = (font_t *)LWRAM(0x00000000);
@@ -47,13 +47,13 @@ print_init(void)
 
         (void)memcpy((void *)_texture_base, cg, font->byte_size);
         /* XXX: Hard coded */
-        (void)memcpy(_clut_base, palette, 16 * sizeof(color_rgb1555_t));
+        (void)memcpy(_clut_base, palette, 16 * sizeof(rgb1555_t));
 
         vdp1_cmdt_normal_sprite_set(&_template_cmdt);
-        vdp1_cmdt_param_draw_mode_set(&_template_cmdt, draw_mode);
-        vdp1_cmdt_param_color_mode1_set(&_template_cmdt, (vdp1_vram_t)_clut_base);
-        vdp1_cmdt_param_size_set(&_template_cmdt, FONT_X, FONT_Y);
-        vdp1_cmdt_param_gouraud_base_set(&_template_cmdt, 0x00000000);
+        vdp1_cmdt_draw_mode_set(&_template_cmdt, draw_mode);
+        vdp1_cmdt_color_mode1_set(&_template_cmdt, (vdp1_vram_t)_clut_base);
+        vdp1_cmdt_char_size_set(&_template_cmdt, FONT_X, FONT_Y);
+        vdp1_cmdt_gouraud_base_set(&_template_cmdt, 0x00000000);
 
         _template_cmdt.reserved = -1000;
 
@@ -87,14 +87,12 @@ print_buffer(uint16_t start_x, uint16_t start_y, const char *__restrict fmt, ...
                 const uint16_t tile = _buffer[i] - ' ';
                 const vdp1_vram_t texture_base = _texture_base + (tile * FONT_TILE_SIZE);
 
-                vdp1_cmdt_param_char_base_set(cmdt, (vdp1_vram_t)texture_base);
+                vdp1_cmdt_char_base_set(cmdt, (vdp1_vram_t)texture_base);
 
                 int16_vec2_t xy;
 
-                xy.x = offset_x * FONT_X;
-                xy.y = offset_y * FONT_Y;
-
-                vdp1_cmdt_param_vertex_set(cmdt, CMDT_VTX_NORMAL_SPRITE, &xy);
+                cmdt->cmd_vertices[0].x = offset_x * FONT_X;
+                cmdt->cmd_vertices[0].y = offset_y * FONT_Y;
         }
 }
 

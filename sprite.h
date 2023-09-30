@@ -2,7 +2,6 @@
 #define SPRITE_H
 
 #include <stdint.h>
-#include <math.h>
 
 #include "graphics/objects.h"
 #include "vdp1_hw.h"

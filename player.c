@@ -1,6 +1,5 @@
 #include <yaul.h>
 
-#include <math.h>
 #include <string.h>
 
 #include "animation.h"

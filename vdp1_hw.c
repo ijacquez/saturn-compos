@@ -2,6 +2,7 @@
 
 #include "vdp1_hw.h"
 #include "sprite.h"
+#include "scroll.h"
 
 #define ORDER_PREAMBLE_INDEX            0
 #define ORDER_SPRITE_START_INDEX        3
@@ -25,6 +26,11 @@ static struct {
 };
 
 static const int16_vec2_t _origin = INT16_VEC2_INITIALIZER(0, 0);
+
+static const vdp1_env_coords_t _env_coords = {
+    .system_clip = INT16_VEC2_INITIALIZER(SCREEN_WIDTH, SCREEN_HEIGHT),
+    .local       = INT16_VEC2_INITIALIZER(0, 0)
+};
 
 static vdp1_vram_partitions_t _vram_partitions;
 
@@ -53,7 +59,7 @@ vdp1_init(void)
         vdp2_sprite_priority_set(7, 0);
 
         vdp1_cmdt_list_init(&_cmdt_list, _cmdts);
-        vdp1_env_preamble_populate(_cmdts, &_origin);
+        vdp1_env_preamble_populate(_cmdts, &_env_coords);
 
         (void)memcpy(&_vram_partitions, &_vdp1_vram_partitions, sizeof(vdp1_vram_partitions_t));
 

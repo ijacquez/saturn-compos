@@ -1,11 +1,13 @@
 #include <yaul.h>
 
 #include <stdint.h>
-#include <math.h>
 
 #include <string.h>
 
+#include <vdp2.h>
+
 #include "cd.h"
+#include "gamemath/uint32.h"
 #include "graphics_refs.h"
 #include "scroll.h"
 #include "level.h"
@@ -46,10 +48,10 @@
 #define BACK_SCREEN_ADDR        VDP2_VRAM_ADDR(3, 0x01FFFE)
 #define NBG0_LINE_SCROLL        VDP2_VRAM_ADDR(0, 0x002000)
 
-#define BG_CPD_PTR(scroll)      ((uint16_t *)_table_cpd_addrs[_scroll_scrn_map((scroll))])
-#define BG_PAL_PTR(scroll)      ((uint16_t *)_table_pal_addrs[_scroll_scrn_map((scroll))])
-#define BG_MAP_PND_PTR(scroll)  ((uint16_t *)_table_pnd_addrs[_scroll_scrn_map((scroll))])
-#define BG_MAP_PND_BITS(scroll) ((uint16_t)_table_pnd_bits[_scroll_scrn_map((scroll))])
+#define BG_CPD_PTR(scroll)      ((uint16_t *)_table_cpd_addrs[(scroll)])
+#define BG_PAL_PTR(scroll)      ((uint16_t *)_table_pal_addrs[(scroll)])
+#define BG_MAP_PND_PTR(scroll)  ((uint16_t *)_table_pnd_addrs[(scroll)])
+#define BG_MAP_PND_BITS(scroll) ((uint16_t)_table_pnd_bits[(scroll)])
 
 extern loaded_level_t *loaded_level;
 
@@ -109,70 +111,82 @@ static const vdp2_vram_cycp_t _vram_cycp = {
 };
 
 static const vdp2_scrn_cell_format_t _nbg0_format = {
-        .scroll_screen     = VDP2_SCRN_NBG0,
-        .cc_count          = VDP2_SCRN_CCC_PALETTE_256,
-        .character_size    = 2 * 2,
-        .pnd_size          = 1,
-        .auxiliary_mode    = 0,
-        .plane_size        = 1 * 1,
-        .cp_table          = NBG0_CPD,
-        .color_palette     = NBG0_PAL,
-        .map_bases.plane_a = NBG0_MAP_PLANE_A,
-        .map_bases.plane_b = NBG0_MAP_PLANE_B,
-        .map_bases.plane_c = NBG0_MAP_PLANE_C,
-        .map_bases.plane_d = NBG0_MAP_PLANE_D
+        .scroll_screen = VDP2_SCRN_NBG0,
+        .ccc           = VDP2_SCRN_CCC_PALETTE_256,
+        .char_size     = VDP2_SCRN_CHAR_SIZE_2X2,
+        .pnd_size      = 1,
+        .aux_mode      = VDP2_SCRN_AUX_MODE_0,
+        .plane_size    = VDP2_SCRN_PLANE_SIZE_1X1,
+        .cpd_base      = NBG0_CPD,
+        .palette_base  = NBG0_PAL
+};
+
+static const vdp2_scrn_normal_map_t _nbg0_normal_map = {
+        .plane_a = NBG0_MAP_PLANE_A,
+        .plane_b = NBG0_MAP_PLANE_B,
+        .plane_c = NBG0_MAP_PLANE_C,
+        .plane_d = NBG0_MAP_PLANE_D
 };
 
 static const vdp2_scrn_cell_format_t _nbg1_format = {
-        .scroll_screen     = VDP2_SCRN_NBG1,
-        .cc_count          = VDP2_SCRN_CCC_PALETTE_256,
-        .character_size    = 2 * 2,
-        .pnd_size          = 1,
-        .auxiliary_mode    = 0,
-        .plane_size        = 1 * 1,
-        .cp_table          = NBG1_CPD,
-        .color_palette     = NBG1_PAL,
-        .map_bases.plane_a = NBG1_MAP_PLANE_A,
-        .map_bases.plane_b = NBG1_MAP_PLANE_B,
-        .map_bases.plane_c = NBG1_MAP_PLANE_C,
-        .map_bases.plane_d = NBG1_MAP_PLANE_D
+        .scroll_screen = VDP2_SCRN_NBG1,
+        .ccc           = VDP2_SCRN_CCC_PALETTE_256,
+        .char_size     = VDP2_SCRN_CHAR_SIZE_2X2,
+        .pnd_size      = 1,
+        .aux_mode      = VDP2_SCRN_AUX_MODE_0,
+        .plane_size    = VDP2_SCRN_PLANE_SIZE_1X1,
+        .cpd_base      = NBG1_CPD,
+        .palette_base  = NBG1_PAL,
+};
+
+static const vdp2_scrn_normal_map_t _nbg1_normal_map = {
+        .plane_a = NBG1_MAP_PLANE_A,
+        .plane_b = NBG1_MAP_PLANE_B,
+        .plane_c = NBG1_MAP_PLANE_C,
+        .plane_d = NBG1_MAP_PLANE_D
 };
 
 static const vdp2_scrn_cell_format_t _nbg2_format = {
-        .scroll_screen     = VDP2_SCRN_NBG2,
-        .cc_count          = VDP2_SCRN_CCC_PALETTE_256,
-        .character_size    = 2 * 2,
-        .pnd_size          = 1,
-        .auxiliary_mode    = 0,
-        .plane_size        = 1 * 1,
-        .cp_table          = NBG2_CPD,
-        .color_palette     = NBG2_PAL,
-        .map_bases.plane_a = NBG2_MAP_PLANE_A,
-        .map_bases.plane_b = NBG2_MAP_PLANE_B,
-        .map_bases.plane_c = NBG2_MAP_PLANE_C,
-        .map_bases.plane_d = NBG2_MAP_PLANE_D
+        .scroll_screen = VDP2_SCRN_NBG2,
+        .ccc           = VDP2_SCRN_CCC_PALETTE_256,
+        .char_size     = VDP2_SCRN_CHAR_SIZE_2X2,
+        .pnd_size      = 1,
+        .aux_mode      = VDP2_SCRN_AUX_MODE_0,
+        .plane_size    = VDP2_SCRN_PLANE_SIZE_1X1,
+        .cpd_base      = NBG2_CPD,
+        .palette_base  = NBG2_PAL
+};
+
+static const vdp2_scrn_normal_map_t _nbg2_normal_map = {
+        .plane_a = NBG2_MAP_PLANE_A,
+        .plane_b = NBG2_MAP_PLANE_B,
+        .plane_c = NBG2_MAP_PLANE_C,
+        .plane_d = NBG2_MAP_PLANE_D
 };
 
 static const vdp2_scrn_cell_format_t _nbg3_format = {
-        .scroll_screen     = VDP2_SCRN_NBG3,
-        .cc_count          = VDP2_SCRN_CCC_PALETTE_256,
-        .character_size    = 2 * 2,
-        .pnd_size          = 1,
-        .auxiliary_mode    = 0,
-        .plane_size        = 1 * 1,
-        .cp_table          = NBG3_CPD,
-        .color_palette     = NBG3_PAL,
-        .map_bases.plane_a = NBG3_MAP_PLANE_A,
-        .map_bases.plane_b = NBG3_MAP_PLANE_B,
-        .map_bases.plane_c = NBG3_MAP_PLANE_C,
-        .map_bases.plane_d = NBG3_MAP_PLANE_D
+        .scroll_screen = VDP2_SCRN_NBG3,
+        .ccc           = VDP2_SCRN_CCC_PALETTE_256,
+        .char_size     = VDP2_SCRN_CHAR_SIZE_2X2,
+        .pnd_size      = 1,
+        .aux_mode      = VDP2_SCRN_AUX_MODE_0,
+        .plane_size    = VDP2_SCRN_PLANE_SIZE_1X1,
+        .cpd_base      = NBG3_CPD,
+        .palette_base  = NBG3_PAL
+};
+
+static const vdp2_scrn_normal_map_t _nbg3_normal_map = {
+        .plane_a = NBG3_MAP_PLANE_A,
+        .plane_b = NBG3_MAP_PLANE_B,
+        .plane_c = NBG3_MAP_PLANE_C,
+        .plane_d = NBG3_MAP_PLANE_D
 };
 
 static const vdp2_scrn_ls_format_t _nbg0_ls_format = {
-        .scroll_screen     = VDP2_SCRN_NBG0,
-        .line_scroll_table = NBG0_LINE_SCROLL,
-        .interval          = 0,
-        .enable            = VDP2_SCRN_LS_HORZ
+        .scroll_screen = VDP2_SCRN_NBG0,
+        .table_base    = NBG0_LINE_SCROLL,
+        .interval      = 0,
+        .type          = VDP2_SCRN_LS_TYPE_HORZ
 };
 
 static void _scroll_lvl_playfield_process(const lvl_t *level, const layer_t *layer);
@@ -185,47 +199,47 @@ static void _scroll_screen_move(scroll_t scroll, uint32_t row);
 static bool _scroll_bounds_check(scroll_t scroll, int32_t x, int32_t y);
 static uint16_t _scroll_pnd_get(scroll_t scroll, int32_t x, int32_t y);
 
-static uint8_t _scroll_scrn_map(uint8_t scroll);
+static vdp2_scrn_t _scroll_scrn_map(scroll_t scroll);
 
 void
 scroll_init(void)
 {
-        vdp2_scrn_cell_format_set(&_nbg0_format);
-        vdp2_scrn_cell_format_set(&_nbg1_format);
-        vdp2_scrn_cell_format_set(&_nbg2_format);
-        vdp2_scrn_cell_format_set(&_nbg3_format);
+        vdp2_scrn_cell_format_set(&_nbg0_format, &_nbg0_normal_map);
+        vdp2_scrn_cell_format_set(&_nbg1_format, &_nbg1_normal_map);
+        vdp2_scrn_cell_format_set(&_nbg2_format, &_nbg2_normal_map);
+        vdp2_scrn_cell_format_set(&_nbg3_format, &_nbg3_normal_map);
 
         vdp2_scrn_ls_set(&_nbg0_ls_format);
 
         vdp2_scrn_ls_h_t * const table = (vdp2_scrn_ls_h_t *)NBG0_LINE_SCROLL;
 
         for (int32_t i = 0; i < 224; i++) {
-                table[i].horz = FIX16(0);
+                table[i].horz = FIX16(0.0);
         }
 
         vdp2_vram_cycp_set(&_vram_cycp);
 
-        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG0, FIX16(0));
-        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG0, FIX16(0));
+        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG0, FIX16(0.0));
+        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG0, FIX16(0.0));
 
-        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG1, FIX16(0));
-        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG1, FIX16(0));
+        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG1, FIX16(0.0));
+        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG1, FIX16(0.0));
 
-        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG2, FIX16(0));
-        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG2, FIX16(0));
+        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG2, FIX16(0.0));
+        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG2, FIX16(0.0));
 
-        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG3, FIX16(0));
-        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG3, FIX16(0));
+        vdp2_scrn_scroll_x_set(VDP2_SCRN_NBG3, FIX16(0.0));
+        vdp2_scrn_scroll_y_set(VDP2_SCRN_NBG3, FIX16(0.0));
 
         vdp2_scrn_priority_set(VDP2_SCRN_NBG3, 6);
         vdp2_scrn_priority_set(VDP2_SCRN_NBG2, 3);
         vdp2_scrn_priority_set(VDP2_SCRN_NBG1, 2);
         vdp2_scrn_priority_set(VDP2_SCRN_NBG0, 1);
 
-        vdp2_scrn_display_set(VDP2_SCRN_NBG0, /* transparent = */ true);
-        vdp2_scrn_display_set(VDP2_SCRN_NBG1, /* transparent = */ true);
-        vdp2_scrn_display_set(VDP2_SCRN_NBG2, /* transparent = */ true);
-        vdp2_scrn_display_set(VDP2_SCRN_NBG3, /* transparent = */ true);
+        vdp2_scrn_display_set(VDP2_SCRN_DISPTP_NBG0 |
+                              VDP2_SCRN_DISPTP_NBG1 |
+                              VDP2_SCRN_DISPTP_NBG2 |
+                              VDP2_SCRN_DISPTP_NBG3);
 
         scroll_reset();
 }
@@ -239,6 +253,7 @@ scroll_lvl_process(const lvl_t *lvl)
         offset = (uintptr_t)lvl + sizeof(lvl_t);
 
         if (lvl->playfield_byte_size != 0) {
+                dbgio_printf("playfield_byte_size: %i\n", lvl->playfield_byte_size);
                 const layer_t * const playfield = (layer_t *)offset;
 
                 _scroll_lvl_playfield_process(lvl, playfield);
@@ -247,6 +262,7 @@ scroll_lvl_process(const lvl_t *lvl)
         }
 
         if (lvl->near_byte_size != 0) {
+                dbgio_printf("near_byte_size: %i\n", lvl->near_byte_size);
                 const layer_t * const near = (layer_t *)offset;
 
                 _scroll_lvl_near_process(lvl, near);
@@ -255,6 +271,7 @@ scroll_lvl_process(const lvl_t *lvl)
         }
 
         if (lvl->far_byte_size != 0) {
+                dbgio_printf("far_byte_size: %i\n", lvl->far_byte_size);
                 const layer_t * const far = (layer_t *)offset;
 
                 _scroll_lvl_far_process(lvl, far);
@@ -263,6 +280,7 @@ scroll_lvl_process(const lvl_t *lvl)
         }
 
         if (lvl->overlap_byte_size != 0) {
+                dbgio_printf("overlap_byte_size: %i\n", lvl->overlap_byte_size);
                 const layer_t * const overlap = (layer_t *)offset;
 
                 _scroll_lvl_overlap_process(lvl, overlap);
@@ -278,7 +296,7 @@ scroll_move(scroll_t scroll, fix16_t x, fix16_t y)
 
         int32_t curr_tile_x;
 
-        const uint8_t scrn = _scroll_scrn_map(scroll);
+        const uint32_t scrn = _scroll_scrn_map(scroll);
 
         /* Playfield and overlap use flip-style scrolling, so don't change y
          * position here for them */
@@ -299,7 +317,7 @@ scroll_move(scroll_t scroll, fix16_t x, fix16_t y)
                 /* map_tiles_y[num] = curr_tile_y; */
 
                 vdp2_scrn_scroll_x_set(scrn, scrolls_x[scroll]);
-                vdp2_scrn_scroll_y_set(scrn, FIX16(0));
+                vdp2_scrn_scroll_y_set(scrn, FIX16(0.0));
                 break;
         case SCROLL_BG_NEAR:
         case SCROLL_BG_FAR:
@@ -323,9 +341,9 @@ scroll_scale(scroll_t scroll, fix16_t scale)
 }
 
 void
-scroll_backcolor_set(color_rgb1555_t color)
+scroll_backcolor_set(rgb1555_t color)
 {
-        vdp2_scrn_back_screen_color_set(BACK_SCREEN_ADDR, color);
+        vdp2_scrn_back_color_set(BACK_SCREEN_ADDR, color);
 }
 
 map_value_flags_t
@@ -403,10 +421,10 @@ scroll_update(scroll_t scroll)
 void
 scroll_reset(void)
 {
-        scroll_set(SCROLL_BG_PLAYFIELD, FIX16(0), FIX16(0));
-        scroll_set(SCROLL_BG_OVERLAP, FIX16(0), FIX16(0));
-        scroll_set(SCROLL_BG_FAR, FIX16(0), FIX16(0));
-        scroll_set(SCROLL_BG_NEAR, FIX16(0), FIX16(0));
+        scroll_set(SCROLL_BG_PLAYFIELD, FIX16(0.0), FIX16(0.0));
+        scroll_set(SCROLL_BG_OVERLAP, FIX16(0.0), FIX16(0.0));
+        scroll_set(SCROLL_BG_FAR, FIX16(0.0), FIX16(0.0));
+        scroll_set(SCROLL_BG_NEAR, FIX16(0.0), FIX16(0.0));
 }
 
 void
@@ -466,12 +484,17 @@ _scroll_lvl_vram_copy(const layer_t *layer, uint32_t scroll)
         const void * const cpd_ptr =
             (void *)((uintptr_t)layer + sizeof(layer_t) + layer->pnd_byte_size);
 
-        const color_rgb1555_t * const palette_ptr =
-            (color_rgb1555_t *)((uintptr_t)cpd_ptr + layer->cg_byte_size);
+        const rgb1555_t * const palette_ptr =
+            (rgb1555_t *)((uintptr_t)cpd_ptr + layer->cg_byte_size);
 
         (void)memcpy(BG_CPD_PTR(scroll), cpd_ptr, layer->cg_byte_size);
 
-        color_rgb1555_t * const cram = (color_rgb1555_t *)BG_PAL_PTR(scroll);
+        dbgio_printf("%s: CPD: 0x%08X (%iB) -> 0x%08X, PAL: 0x%08X (%i count) -> 0x%08X\n",
+            "_scroll_lvl_vram_copy",
+            (uintptr_t)cpd_ptr, layer->cg_byte_size, BG_CPD_PTR(scroll),
+            (uintptr_t)palette_ptr, layer->palette_count, BG_PAL_PTR(scroll));
+
+        rgb1555_t * const cram = (rgb1555_t *)BG_PAL_PTR(scroll);
         for (uint32_t i = 0; i < layer->palette_count; i++) {
                 cram[i] = palette_ptr[i];
         }
@@ -573,8 +596,8 @@ _scroll_pnd_get(scroll_t scroll, int32_t x, int32_t y)
         return (value | BG_MAP_PND_BITS(scroll));
 }
 
-static uint8_t
-_scroll_scrn_map(uint8_t scroll)
+static vdp2_scrn_t
+_scroll_scrn_map(scroll_t scroll)
 {
         switch (scroll) {
         case SCROLL_BG_OVERLAP:

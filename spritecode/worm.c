@@ -1,5 +1,6 @@
 #include <stdint.h>
-#include <math.h>
+
+#include <gamemath/fix16.h>
 
 #include "worm.h"
 #include "explosion.h"
@@ -109,7 +110,7 @@ _state_crawl(sprite_t *worm)
         state_t * const state = worm->data;
 
         worm->dx += WORM_ACCEL;
-        if (fix16_abs(worm->dx) > WORM_MAX_SPEED) {
+        if (abs(worm->dx) > WORM_MAX_SPEED) {
                 worm->dx = WORM_MAX_SPEED;
         }
 

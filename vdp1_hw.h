@@ -4,7 +4,6 @@
 #include <yaul.h>
 
 #include <stdint.h>
-#include <math.h>
 
 void vdp1_init(void);
 

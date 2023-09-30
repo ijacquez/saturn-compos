@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <math.h>
 
 #include "cd.h"
 #include "sound.h"

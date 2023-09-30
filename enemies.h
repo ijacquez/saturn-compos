@@ -1,7 +1,7 @@
 #ifndef ENEMYLIST_H
 #define ENEMYLIST_H
 
-#include <fix16.h>
+#include <gamemath/fix16.h>
 
 #include "format_lvl.h"
 

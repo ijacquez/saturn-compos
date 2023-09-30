@@ -2,7 +2,6 @@
 #define COLLISION_H
 
 #include <stdint.h>
-#include <math.h>
 
 #include "scroll.h"
 #include "sprite.h"
